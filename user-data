@@ -10,15 +10,28 @@ gpg --export packages@opscode.com | sudo tee /etc/apt/trusted.gpg.d/opscode-keyr
 sudo apt-get update -y
 sudo apt-get install opscode-keyring -y
 sudo apt-get upgrade -y
-sudo apt-get install chef -y
+
+sudo apt-get install ruby ruby-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl -y
+
+cd /tmp
+curl -O http://production.cf.rubygems.org/rubygems/rubygems-1.8.24.tgz
+tar zxf rubygems-1.8.24.tgz
+cd rubygems-1.8.24
+sudo ruby setup.rb --no-format-executable
+sudo gem install chef --no-ri --no-rdoc
+
+
 
 sudo mkdir /etc/chef
-echo "log_level              :info" > /etc/chef/client.rb
-echo "log_location           STDOUT" >> /etc/chef/client.rb
-echo "chef_server_url        \'https://api.opscode.com/organizations/att_services\'" >> /etc/chef/client.rb
-echo "validation_client_name \'att_services-validator\'" >> /etc/chef/client.rb
+sudo echo "log_level              :info" > /etc/chef/client.rb
+sudo echo "log_location           STDOUT" >> /etc/chef/client.rb
+sudo echo "chef_server_url        \'https://api.opscode.com/organizations/att_services\'" >> /etc/chef/client.rb
+sudo echo "validation_client_name \'att_services-validator\'" >> /etc/chef/client.rb
 
-echo "{\"run_list\":[\"role[booted]\"]}" > /etc/chef/firstboot.json
+sudo echo "{\"run_list\":[\"role[booted]\"]}" > /etc/chef/firstboot.json
 
-chef-client -j /etc/chef/firstboot.json
+sudo echo 'pem key' > /etc/chef/validation.pem
+sudo chmod 700 /etc/chef/validation.pem
+
+sudo chef-client -j /etc/chef/firstboot.json
 
